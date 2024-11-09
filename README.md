@@ -2,6 +2,9 @@
 
 Сontent moderation API built with Node.js, TypeScript, and Express.
 
+> [!WARNING]  
+> This project is unfinished, but I'm trying to finish it as soon as possible.
+
 ## Features
 
 - Text moderation with customizable profanity lists
