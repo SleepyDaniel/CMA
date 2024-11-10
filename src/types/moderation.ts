@@ -19,18 +19,38 @@ export interface TextModerationResult {
     magnitude: number;
     label: 'positive' | 'negative' | 'neutral';
   };
-  spam: {
-    isSpam: boolean;
-    confidence: number;
-    categories: string[];
-  };
+  spam: SpamAnalysisResult;
   language: {
     detected: string;
     confidence: number;
   };
 }
 
-export interface ImageModerationResult {
+export interface SpamAnalysisResult {
+  isSpam: boolean;
+  confidence: number;
+  categories: string[];
+  indicators: {
+    repetition: Record<string, number>;
+    formatting: {
+      allCaps: boolean;
+      excessiveSpacing: number;
+      longLines: number;
+    };
+    links: {
+      count: number;
+      density: number;
+      suspicious: number;
+    };
+    patterns: {
+      monetization: number;
+      urgency: number;
+      deception: number;
+    };
+  };
+}
+
+export interface ImageAnalysisResult {
   nsfw: {
     score: number;
     categories: {
@@ -39,29 +59,58 @@ export interface ImageModerationResult {
       violence: number;
       hate: number;
     };
+    predictions: Array<{
+      category: string;
+      confidence: number;
+    }>;
   };
-  objects: {
-    name: string;
+  objects: Array<{
+    class: string;
     confidence: number;
-  }[];
+    bbox: BoundingBox;
+  }>;
   faces: {
     count: number;
-    details: {
+    detections: Array<{
       confidence: number;
-      boundingBox: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-      };
-    }[];
+      bbox: BoundingBox;
+      landmarks: Array<Point>;
+    }>;
+  };
+  metadata: {
+    dimensions: {
+      width: number;
+      height: number;
+    };
+    format: string;
+    size: number;
   };
 }
 
-export interface ModerationConfig {
-  minConfidenceThreshold: number;
-  maxContentLength: number;
-  supportedLanguages: string[];
-  cacheExpiration: number;
-  batchSize: number;
+export interface SpamDetectionConfig {
+  thresholds: {
+    spam: number;
+    repetition: number;
+    linkDensity: number;
+    monetization: number;
+    urgency: number;
+    deception: number;
+  };
+  patterns: {
+    monetization: RegExp[];
+    urgency: RegExp[];
+    deception: RegExp[];
+  };
+}
+
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface Point {
+  x: number;
+  y: number;
 }

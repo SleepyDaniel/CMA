@@ -3,6 +3,8 @@ import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { router } from './routes';
+import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
 import { validateApiKey } from './middleware/auth';
 import { config } from './config';
 import { logger } from './utils/logger';
@@ -21,11 +23,14 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+app.use(requestLogger);
 app.use(validateApiKey);
 
 app.use('/api/v1', router);
 
-const PORT = config.port || 3000;
+app.use(errorHandler);
+
+const PORT = config.app.port || 3000;
 
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
